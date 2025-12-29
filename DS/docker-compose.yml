@@ -1,5 +1,4 @@
-version: '3.3'
-
+---
 #------------------------------------------------------------
 # This docker compose describes the two services running on
 # top of Rails.
@@ -41,6 +40,7 @@ services:
   app:
     image: ${IMAGE}:${TAG:-latest}
     container_name: app
+    hostname: myapp
     restart: always
     ports:
       - ${PORT}:3000
@@ -48,6 +48,7 @@ services:
       - lexpol_key
       - lexpol_crt
     environment:
+      - TZ=EUROPE/PARIS
       - ACTIVE_STORAGE_SERVICE
       - ADMINISTRATION_BANNER_MESSAGE
       - AGENT_CONNECT_BASE_URL
@@ -177,9 +178,14 @@ services:
     networks:
       - md-network
     depends_on:
-      # - clamav
-      - worker
-      - sidekiq
+      db:
+        condition: service_healthy
+      clamav:
+        condition: service_started
+      worker:
+        condition: service_started
+      sidekiq:
+        condition: service_started
 
   worker:
     image: ${IMAGE}:${TAG}
@@ -191,6 +197,7 @@ services:
       - lexpol_key
       - lexpol_crt
     environment: &worker_env
+      - TZ=EUROPE/PARIS
       - ACTIVE_STORAGE_SERVICE
       - API_ADRESSE_URL
       - API_COJO_URL
@@ -270,12 +277,12 @@ services:
     networks:
       - md-network
 
-#  clamav:
-#    image: matau/clamav
-#    container_name: clamav
-#    restart: always
-#    networks:
-#      - md-network
+  clamav:
+    image: matau/clamav
+    container_name: clamav
+    restart: always
+    networks:
+      - md-network
 
   redis:
     image: redis:7-alpine
@@ -288,6 +295,8 @@ services:
     image: redis:7-alpine
     container_name: cache
     command: redis-server --maxmemory 200mb --maxmemory-policy allkeys-lru --save "" --appendonly no
+    environment:
+      - TZ=EUROPE/PARIS
     networks:
       - md-network
 
@@ -309,9 +318,34 @@ services:
     image: postgis/postgis:17-master
     restart: always
     environment:
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_DB=${DB_DATABASE}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+      POSTGRES_USER: "${DB_USERNAME}"
+      POSTGRES_DB: "test"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      TZ: "EUROPE/PARIS"
+    #  POSTGRES_DB: "${DB_DATABASE}"
+    networks:
+      - md-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data:Z,rw
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}'"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    environment:
+      - TZ=EUROPE/PARIS
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    #  - ./certs:/etc/nginx/certs
+    depends_on:
+      - app
     networks:
       - md-network
 
@@ -354,7 +388,7 @@ volumes:
       type: none
       device: $ROOT/clamav/log
       o: bind
-
+  postgres_data:
 
 networks:
   md-network:
