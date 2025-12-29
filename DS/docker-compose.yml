@@ -177,7 +177,7 @@ services:
     networks:
       - md-network
     depends_on:
-      - clamav
+      # - clamav
       - worker
       - sidekiq
 
@@ -270,12 +270,12 @@ services:
     networks:
       - md-network
 
-  clamav:
-    image: matau/clamav
-    container_name: clamav
-    restart: always
-    networks:
-      - md-network
+#  clamav:
+#    image: matau/clamav
+#    container_name: clamav
+#    restart: always
+#    networks:
+#      - md-network
 
   redis:
     image: redis:7-alpine
@@ -306,7 +306,7 @@ services:
       - md-network
 
   db:
-    image: postgres:latest
+    image: postgis/postgis:17-master
     restart: always
     environment:
       - POSTGRES_USER=${DB_USERNAME}
