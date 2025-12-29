@@ -101,17 +101,19 @@ services:
     #  - "5432:5432"
     networks:
       - md-network
+  # need to be a 'demarches-simplifiees' platform ! > can be remove
   graphql:
     image: hasura/graphql-engine:latest
     depends_on:
     - db
     restart: always
     environment:
-      HASURA_GRAPHQL_DATABASE_URL: postgres://${DB_USERNAME}:${DB_PASSWORD}@db:5432/${DB_DATABASE}
-      HASURA_GRAPHQL_ENABLE_CONSOLE: false # set to "false" to disable console
+      HASURA_GRAPHQL_DATABASE_URL: "postgres://${DB_USERNAME}:${DB_PASSWORD}@db:5432/${DB_DATABASE}"
+      #HASURA_GRAPHQL_ENABLE_CONSOLE: false # set to "false" to disable console
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
       ## uncomment next line to set an admin secret
-      # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
-       #GRAPHQL_BEARER: ${GRAPHQL_BEARER}
+      # HASURA_GRAPHQL_ADMIN_SECRET: ${GRAPHQL_BEARER}
     networks:
       - md-network
 
