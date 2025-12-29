@@ -1,0 +1,360 @@
+version: '3.3'
+
+#------------------------------------------------------------
+# This docker compose describes the two services running on
+# top of Rails.
+# To work, this configuration requires
+#    - a running Postgress instance
+#    - environment variables defined via .env file
+#
+# This configuration file defines 4 machines
+#   - app: Main rails application (frontend)
+#   - worker: responsible of running jobs like sending mails, virus analysis
+#   - clamav: antivirus used to verify documents attached to forms
+# Variables
+# IMAGE : name of the docker image to run (sipf/mes-demarches)
+# TAG : Tag of the image to run (eg master or devpf or b38)
+# ITAIETE_TAG: tag of the itaieate image to run.
+#
+# APP_HOST: host:port pointing to the application to allows creation of absolute links
+#
+# API_ISPF_AUTH_URL keycloak URL to connect to iteiete realm
+# API_ISPF_URL itaiete url
+# API_ISPF_USER: ISPF API configuration
+# API_ISPF_PASSWORD
+#
+# DB_DATABASE: database configuration
+# DB_HOST
+# DB_USERNAME
+# DB_PASSWORD
+#
+# NETWORK_SLOT: Optional, default to 0, Number between 0 and 255 allowing to run multiple env (dev, staging)
+#
+# MAILJET_API_KEY:
+# MAILJET_SECRET_KEY: MAILJET configuration to use to send mails
+#
+# SENTRY variables to logs exception on the SEntry platform
+# HELPSCOUT variable to be able to receive administrator requests & help requests
+# CERTIGNA variable to timstamp service (horodatage)
+#-------------------------------------------------------------
+services:
+  app:
+    image: ${IMAGE}:${TAG:-latest}
+    container_name: app
+    restart: always
+    ports:
+      - ${PORT}:3000
+    secrets:
+      - lexpol_key
+      - lexpol_crt
+    environment:
+      - ACTIVE_STORAGE_SERVICE
+      - ADMINISTRATION_BANNER_MESSAGE
+      - AGENT_CONNECT_BASE_URL
+      - AGENT_CONNECT_ENABLED
+      - AGENT_CONNECT_ID
+      - AGENT_CONNECT_JWKS
+      - AGENT_CONNECT_REDIRECT
+      - AGENT_CONNECT_SECRET
+      - API_ADRESSE_URL
+      - API_COJO_URL
+      - API_CPS_AUTH
+      - API_CPS_CLIENT_ID
+      - API_CPS_CLIENT_SECRET
+      - API_CPS_PASSWORD
+      - API_CPS_URL
+      - API_CPS_USERNAME
+      - API_EDUCATION_URL
+      - API_ENTREPRISE_DEFAULT_SIRET
+      - API_ISPF_AUTH_URL
+      - API_ISPF_URL
+      - API_GEO_URL
+      - API_ISPF_PASSWORD
+      - API_ISPF_USER
+      - APPLICATION_BASE_URL
+      - APPLICATION_NAME
+      - APP_HOST
+      - AR_ENCRYPTION_KEY_DERIVATION_SALT
+      - AR_ENCRYPTION_PRIMARY_KEY
+      - BANNER_MESSAGE
+      - CERTIGNA_USERPWD
+      - CLAMAV_ENABLED=enabled
+      - CLAMD_TCP_HOST=clamav
+      - CLAMD_TCP_PORT=3310
+      - COJO_JWT_RSA_PRIVATE_KEY
+      - CRISP_CLIENT_KEY
+      - CRISP_ENABLED
+      - DB_DATABASE
+      - DB_HOST
+      - DB_PASSWORD
+      - DB_POOL
+      - DB_USERNAME
+      - DEMANDE_INSCRIPTION_ADMIN_PAGE_URL
+      - DOC_URL
+      - DOLIST_ACCOUNT_ID
+      - DOLIST_API_KEY
+      - DOLIST_BALANCING_VALUE
+      - DOLIST_PASSWORD
+      - DOLIST_USERNAME
+      - DS_PROXY_URL
+      - DS_ENV
+      - ELIGIBILITE_URL=${ELIGIBILITE_URL:-https://doc.demarches-simplifiees.fr/pour-aller-plus-loin/eligibilite-des-dossiers}
+      - ENCRYPTION_SERVICE_SALT
+      - FAVICON_16PX_SRC
+      - FAVICON_32PX_SRC
+      - FAVICON_96PX_SRC
+      - FC_PARTICULIER_BASE_URL
+      - FC_PARTICULIER_ID
+      - FC_PARTICULIER_SECRET
+      - GITHUB_CLIENT_ID
+      - GITHUB_CLIENT_SECRET
+      - GOOGLE_CLIENT_ID
+      - GOOGLE_CLIENT_SECRET
+      - HELPSCOUT_CLIENT_ID
+      - HELPSCOUT_CLIENT_SECRET
+      - HELPSCOUT_MAILBOX_ID
+      - HELPSCOUT_WEBHOOK_SECRET
+      - INVISIBLE_CAPTCHA_SECRET
+      - LEGIT_ADMIN_DOMAINS
+      - LEXPOL_BASE_URL
+      - LEXPOL_EMAIL
+      - LEXPOL_PASSWORD
+      - LEXPOL_SERVICE_EMAILS
+      - LEXPOL_CERTIFICATE_ENABLED
+      - LEXPOL_CERT_PATH=/run/secrets/lexpol_crt
+      - LEXPOL_KEY_PATH=/run/secrets/lexpol_key
+      - MAILCATCHER_ENABLED
+      - MAILCATCHER_HOST
+      - MAILCATCHER_PORT
+      - MAILER_LOGO_SRC
+      - MATOMO_COOKIE_DOMAIN
+      - MATOMO_DOMAIN
+      - MATOMO_ENABLED
+      - MATOMO_HOST
+      - MATOMO_ID
+      - MATOMO_IFRAME_URL
+      - MICROSOFT_CLIENT_ID
+      - MICROSOFT_CLIENT_SECRET
+      - OTP_SECRET_KEY
+      - PROCEDURE_DEFAULT_LOGO_SRC
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_CACHE_URL=redis://cache:6379/0
+      - REDIS_CACHE_SSL=
+      - RUBY_YJIT_ENABLE
+      - S3_ACCESS_KEY
+      - S3_BUCKET
+      - S3_ENDPOINT
+      - S3_REGION
+      - S3_SECRET_KEY
+      - S3_NEW_ACCESS_KEY
+      - S3_NEW_BUCKET
+      - S3_NEW_ENDPOINT
+      - S3_NEW_REGION
+      - S3_NEW_SECRET_KEY
+      - SAML_IDP_CERTIFICATE
+      - SAML_IDP_ENABLED
+      - SAML_IDP_SECRET_KEY
+      - SENDINBLUE_API_V3_KEY
+      - SENDINBLUE_BALANCING_VALUE=100
+      - SENDINBLUE_LOGIN_URL
+      - SENDINBLUE_SMTP_KEY
+      - SENDINBLUE_USER_NAME
+      - SENTRY_CURRENT_ENV
+      - SENTRY_DSN_JS
+      - SENTRY_DSN_RAILS
+      - SENTRY_ENABLED
+      - SIPF_CLIENT_BASE_URL
+      - SIPF_CLIENT_ID
+      - SIPF_CLIENT_SECRET
+      - TATOU_BASE_URL
+      - TATOU_CLIENT_ID
+      - TATOU_CLIENT_SECRET
+      - USAGER_BANNER_MESSAGE
+      - WATERMARK_FILE
+      - WEB_CONCURRENCY=${WEB_CONCURRENCY:-2}
+      - YAHOO_CLIENT_ID
+      - YAHOO_CLIENT_SECRET
+    networks:
+      - md-network
+    depends_on:
+      - clamav
+      - worker
+      - sidekiq
+
+  worker:
+    image: ${IMAGE}:${TAG}
+    entrypoint: []
+    command: app/lib/worker.sh
+    container_name: worker
+    restart: always
+    secrets:
+      - lexpol_key
+      - lexpol_crt
+    environment: &worker_env
+      - ACTIVE_STORAGE_SERVICE
+      - API_ADRESSE_URL
+      - API_COJO_URL
+      - API_CPS_AUTH
+      - API_CPS_CLIENT_ID
+      - API_CPS_CLIENT_SECRET
+      - API_CPS_PASSWORD
+      - API_CPS_URL
+      - API_CPS_USERNAME
+      - API_EDUCATION_URL
+      - API_ENTREPRISE_DEFAULT_SIRET
+      - API_ISPF_AUTH_URL
+      - API_ISPF_URL
+      - APPLICATION_BASE_URL
+      - APPLICATION_NAME
+      - APP_HOST
+      - AR_ENCRYPTION_KEY_DERIVATION_SALT
+      - AR_ENCRYPTION_PRIMARY_KEY
+      - CERTIGNA_USERPWD
+      - CLAMAV_ENABLED=enabled
+      - CLAMD_TCP_HOST=clamav
+      - CLAMD_TCP_PORT=3310
+      - COJO_JWT_RSA_PRIVATE_KEY
+      - DB_DATABASE
+      - DB_HOST
+      - DB_PASSWORD
+      - DB_POOL
+      - DB_USERNAME
+      - DELAYED_JOB_ARGS=${DELAYED_JOB_ARGS:---pool=*:5}
+      - DOLIST_BALANCING_VALUE
+      - DOLIST_USERNAME
+      - DOLIST_PASSWORD
+      - DOLIST_ACCOUNT_ID
+      - DOLIST_API_KEY
+      - LEXPOL_BASE_URL
+      - LEXPOL_EMAIL
+      - LEXPOL_PASSWORD
+      - LEXPOL_SERVICE_EMAILS
+      - LEXPOL_CERTIFICATE_ENABLED
+      - LEXPOL_CERT_PATH=/run/secrets/lexpol_crt
+      - LEXPOL_KEY_PATH=/run/secrets/lexpol_key
+      - LEXPOL_CERT_PATH
+      - LEXPOL_KEY_PATH
+      - ENCRYPTION_SERVICE_SALT
+      - MAILER_LOGO_SRC
+      - MAILJET_API_KEY
+      - MAILJET_SECRET_KEY
+      - MAILCATCHER_ENABLED
+      - MAILCATCHER_HOST
+      - MAILCATCHER_PORT
+      - PROCEDURE_DEFAULT_LOGO_SRC
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_CACHE_URL=redis://cache:6379/0
+      - REDIS_CACHE_SSL=
+      - RUBY_YJIT_ENABLE
+      - S3_ACCESS_KEY
+      - S3_BUCKET
+      - S3_ENDPOINT
+      - S3_REGION
+      - S3_SECRET_KEY
+      - S3_NEW_ACCESS_KEY
+      - S3_NEW_BUCKET
+      - S3_NEW_ENDPOINT
+      - S3_NEW_REGION
+      - S3_NEW_SECRET_KEY
+      - SENDINBLUE_API_V3_KEY
+      - SENDINBLUE_BALANCING
+      - SENDINBLUE_BALANCING_VALUE=100
+      - SENDINBLUE_ENABLED
+      - SENDINBLUE_SMTP_KEY
+      - SENDINBLUE_USER_NAME
+      - SENTRY_CURRENT_ENV
+      - SENTRY_DSN_JS
+      - SENTRY_DSN_RAILS
+      - SENTRY_ENABLED
+      - WATERMARK_FILE
+    networks:
+      - md-network
+
+  clamav:
+    image: matau/clamav
+    container_name: clamav
+    restart: always
+    networks:
+      - md-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    command: redis-server --save 3600 1 --appendonly yes
+    networks:
+      - md-network
+
+  cache:
+    image: redis:7-alpine
+    container_name: cache
+    command: redis-server --maxmemory 200mb --maxmemory-policy allkeys-lru --save "" --appendonly no
+    networks:
+      - md-network
+
+  sidekiq:
+    image: ${IMAGE}:${TAG}
+    container_name: sidekiq
+    command: bundle exec sidekiq -C config/sidekiq.yml
+    entrypoint: [ ]
+    secrets:
+      - lexpol_key
+      - lexpol_crt
+    depends_on:
+      - redis
+    environment: *worker_env
+    networks:
+      - md-network
+
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    networks:
+      - md-network
+
+secrets:
+  lexpol_key:
+    file: ./key.pem
+    #file: ./config/secrets/mes-demarches@administration.gov.pf_key.pem
+  lexpol_crt:
+    file: ./cert.pem
+    #file: ./config/secrets/mes-demarches@administration.gov.pf_crt.pem
+
+volumes:
+  md-data-files:
+    driver: local
+    driver_opts:
+      type: none
+      device: $ROOT/data
+      o: bind
+  md-redis:
+    driver: local
+    driver_opts:
+      type: none
+      device: $ROOT/redis
+      o: bind
+  md-tmp:
+    driver: local
+    driver_opts:
+      type: none
+      device: $ROOT/tmp
+      o: bind
+  clamav-db:
+    driver: local
+    driver_opts:
+      type: none
+      device: $ROOT/clamav/db
+      o: bind
+  clamav-logs:
+    driver: local
+    driver_opts:
+      type: none
+      device: $ROOT/clamav/log
+      o: bind
+
+
+networks:
+  md-network:
