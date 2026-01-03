@@ -1,6 +1,4 @@
 ---
-version: '3.3'
-
 #------------------------------------------------------------
 # This docker compose describes how to run inspecteur Mes-Démarches. It requires
 #    - environment variables defined via .env file
@@ -62,51 +60,52 @@ x-common-env: &common-env
   SENDINBLUE_SMTP_KEY: ${SENDINBLUE_SMTP_KEY}
   SENDINBLUE_USER_NAME: ${SENDINBLUE_USER_NAME}
 
+name: inspecteur_demarches 
+
 services:
   app:
     image: ${IMAGE}:${TAG:-latest}
-    restart: always
-    ports:
-      - ${PORT}:${PORT}
+    depends_on:
+      db:
+        condition: service_healthy
+    #volumes:
+    #  - imd-data-files:/imd/storage
+    #  - imd-fonts:/usr/share/fonts
     environment:
       <<: *common-env
       PORT: ${PORT}
       RAILS_RELATIVE_URL_ROOT: ${RAILS_RELATIVE_URL_ROOT}
-    #volumes:
-    #  - imd-data-files:/imd/storage
-    #  - imd-fonts:/usr/share/fonts
+    ports:
+      - '0.0.0.0:${PORT}:${PORT}'
     networks:
       - md-network
+    restart: always
 
-  worker:
-    image: ${IMAGE}:${TAG:-latest}
-    entrypoint: ["bundle", "exec"]
-    command: rails jobs:work
-    restart: always
-    environment:
-      <<: *common-env
-    #volumes:
-    #  - imd-data-files:/imd/storage
-    #  - imd-fonts:/usr/share/fonts
-    networks:
-      - md-network
   db:
-    image: postgres:latest
-    restart: always
+    #image: postgres:latest
+    image: docker.io/postgis/postgis:17-master
     environment:
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_DB=${DB_DATABASE}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+      POSTGRES_USER: "${DB_USERNAME}"
+      POSTGRES_DB: "${DB_DATABASE}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      TZ: "EUROPE/PARIS"
     #ports:
     #  - "5432:5432"
     networks:
       - md-network
-  # need to be a 'demarches-simplifiees' platform ! > can be remove
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}'"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
   graphql:
     image: hasura/graphql-engine:latest
     depends_on:
-    - db
-    restart: always
+      db:
+        condition: service_healthy
     environment:
       HASURA_GRAPHQL_DATABASE_URL: "postgres://${DB_USERNAME}:${DB_PASSWORD}@db:5432/${DB_DATABASE}"
       #HASURA_GRAPHQL_ENABLE_CONSOLE: false # set to "false" to disable console
@@ -116,7 +115,22 @@ services:
       # HASURA_GRAPHQL_ADMIN_SECRET: ${GRAPHQL_BEARER}
     networks:
       - md-network
+    restart: always
 
+  worker:
+    image: ${IMAGE}:${TAG:-latest}
+    #volumes:
+    #  - imd-data-files:/imd/storage
+    #  - imd-fonts:/usr/share/fonts
+    environment:
+      <<: *common-env
+    networks:
+      - md-network
+    command: rails jobs:work
+    entrypoint: ["bundle", "exec"]
+    restart: always
+
+  # need to be a 'demarches-simplifiees' platform ! > can be remove
 #volumes:
 #  imd-data-files:
 #    #driver: local
