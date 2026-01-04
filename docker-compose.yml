@@ -65,14 +65,18 @@ name: inspecteur_demarches
 services:
   app:
     image: ${IMAGE}:${TAG:-latest}
-    depends_on:
-      db:
-        condition: service_healthy
-    #volumes:
-    #  - imd-data-files:/imd/storage
-    #  - imd-fonts:/usr/share/fonts
+    #depends_on:
+    #  db:
+    #    condition: service_healthy
+    volumes:
+      - imd-data-files:/imd/storage
+      - imd-fonts:/usr/share/fonts
+      #- ./DS/key.pem:/etc/ssl/private/my-site.key:ro
+      - ./DS/cert.pem:/etc/ssl/certs/my-site.crt:ro
+      - ./DS/cert.pem:/usr/local/share/ca-certificates/foo.crt:ro
     environment:
       <<: *common-env
+      SSL_CERT_DIR: /etc/ssl/certs ruby http.rb
       PORT: ${PORT}
       RAILS_RELATIVE_URL_ROOT: ${RAILS_RELATIVE_URL_ROOT}
     ports:
@@ -80,48 +84,51 @@ services:
     networks:
       - md-network
     restart: always
+    #command: chmod 644 /usr/local/share/ca-certificates/foo.crt && update-ca-certificates
+    command: sudo update-ca-certificates
 
-  db:
-    #image: postgres:latest
-    image: docker.io/postgis/postgis:17-master
-    environment:
-      POSTGRES_INITDB_ARGS: "--data-checksums"
-      POSTGRES_USER: "${DB_USERNAME}"
-      POSTGRES_DB: "${DB_DATABASE}"
-      POSTGRES_PASSWORD: "${DB_PASSWORD}"
-      TZ: "EUROPE/PARIS"
-    #ports:
-    #  - "5432:5432"
-    networks:
-      - md-network
-    restart: always
-    healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}'"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
+  #db:
+  #  #image: postgres:latest
+  #  image: docker.io/postgis/postgis:17-master
+  #  environment:
+  #    POSTGRES_INITDB_ARGS: "--data-checksums"
+  #    POSTGRES_USER: "${DB_USERNAME}"
+  #    POSTGRES_DB: "${DB_DATABASE}"
+  #    POSTGRES_PASSWORD: "${DB_PASSWORD}"
+  #    TZ: "EUROPE/PARIS"
+  #  #ports:
+  #  #  - "5432:5432"
+  #  networks:
+  #    - md-network
+  #  restart: always
+  #  healthcheck:
+  #    test: ["CMD-SHELL", "sh -c 'pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}'"]
+  #    interval: 10s
+  #    timeout: 3s
+  #    retries: 3
 
-  graphql:
-    image: hasura/graphql-engine:latest
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      HASURA_GRAPHQL_DATABASE_URL: "postgres://${DB_USERNAME}:${DB_PASSWORD}@db:5432/${DB_DATABASE}"
-      #HASURA_GRAPHQL_ENABLE_CONSOLE: false # set to "false" to disable console
-      HASURA_GRAPHQL_DEV_MODE: "true"
-      HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
-      ## uncomment next line to set an admin secret
-      # HASURA_GRAPHQL_ADMIN_SECRET: ${GRAPHQL_BEARER}
-    networks:
-      - md-network
-    restart: always
+  # need to be a 'demarches-simplifiees' platform ! > can be remove
+  #graphql:
+  #  image: hasura/graphql-engine:latest
+  #  depends_on:
+  #    db:
+  #      condition: service_healthy
+  #  environment:
+  #    HASURA_GRAPHQL_DATABASE_URL: "postgres://${DB_USERNAME}:${DB_PASSWORD}@db:5432/${DB_DATABASE}"
+  #    #HASURA_GRAPHQL_ENABLE_CONSOLE: false # set to "false" to disable console
+  #    HASURA_GRAPHQL_DEV_MODE: "true"
+  #    HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
+  #    ## uncomment next line to set an admin secret
+  #    # HASURA_GRAPHQL_ADMIN_SECRET: ${GRAPHQL_BEARER}
+  #  networks:
+  #    - md-network
+  #  restart: always
 
   worker:
     image: ${IMAGE}:${TAG:-latest}
-    #volumes:
-    #  - imd-data-files:/imd/storage
-    #  - imd-fonts:/usr/share/fonts
+    volumes:
+      - imd-data-files:/imd/storage
+      - imd-fonts:/usr/share/fonts
     environment:
       <<: *common-env
     networks:
@@ -130,16 +137,15 @@ services:
     entrypoint: ["bundle", "exec"]
     restart: always
 
-  # need to be a 'demarches-simplifiees' platform ! > can be remove
-#volumes:
-#  imd-data-files:
-#    #driver: local
+volumes:
+  imd-data-files:
+    driver: local
 #    #driver_opts:
 #    #  type: none
 #    #  device: $ROOT/storage
 #    #  o: bind
-#  #imd-fonts:
-#    #driver: local
+  imd-fonts:
+    driver: local
 #    #driver_opts:
 #    #  type: none
 #    #  device: /usr/share/fonts
@@ -147,7 +153,7 @@ services:
       
 networks:
   md-network:
-  #  driver: bridge
-  #  ipam:
-  #    config:
-  #      - subnet: 10.5.2.0/24
+#  #  driver: bridge
+#  #  ipam:
+#  #    config:
+#  #      - subnet: 10.5.2.0/24
