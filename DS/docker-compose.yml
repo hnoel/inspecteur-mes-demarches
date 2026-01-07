@@ -326,7 +326,7 @@ services:
     environment:
       POSTGRES_INITDB_ARGS: "--data-checksums"
       POSTGRES_USER: "${DB_USERNAME}"
-      POSTGRES_DB: "test"
+      POSTGRES_DB: "${DB_DATABASE}"
       POSTGRES_PASSWORD: "${DB_PASSWORD}"
       TZ: "EUROPE/PARIS"
     #  POSTGRES_DB: "${DB_DATABASE}"
@@ -365,6 +365,20 @@ services:
     security_opt:
       - apparmor:unconfined
     #file: ./config/secrets/mes-demarches@administration.gov.pf_crt.pem
+  smtp:
+    #image: docker.io/mailhog/mailhog:latest
+    image: dockage/mailcatcher:latest
+    #volumes:
+    #  - ./authfile:/authfile:ro
+    environment:
+      #MH_AUTH_FILE: '/authfile'
+      TZ: 'EUROPE/PARIS'
+    ports:
+      - '0.0.0.0:1025:1025'
+      - '0.0.0.0:8025:1080'
+      #- '0.0.0.0:8025:8025'
+    networks:
+      - md-network
 
 networks:
   md-network:
