@@ -4,7 +4,7 @@ USER root
 # Install the ca-certificate package
 RUN apt-get update && apt-get install -y ca-certificates
 # Copy the CA certificate from the context to the build container
-COPY ./DS/cert.pem /usr/local/share/ca-certificates/
+COPY ./DS/cert.pem /usr/local/share/ca-certificates/mycert.crt
 # Update the CA certificates in the container
 RUN update-ca-certificates
 
