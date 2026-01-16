@@ -1,5 +1,5 @@
 ---
-name: Release an Helm charts
+name: Release an Helm charts for project 'demarche.numerique'
 
 # Configures this workflow to run manually or every time a change is pushed to the branch called `master`.
 on:
@@ -24,9 +24,11 @@ jobs:
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
+      - name: Go to 'demarche.numerique' subfolder
+        run: cd ./DS
+        shell: bash
+        
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.7.0
-        with:
-          charts_dir: ./DS/charts
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
