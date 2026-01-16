@@ -1,0 +1,144 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ../../kompose --file docker-compose.yml convert --chart
+    kompose.version: 1.38.0 (a8f5d1cbd)
+  labels:
+    io.kompose.service: app
+  name: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: app
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ../../kompose --file docker-compose.yml convert --chart
+        kompose.version: 1.38.0 (a8f5d1cbd)
+      labels:
+        io.kompose.service: app
+    spec:
+      containers:
+        - env:
+            - name: ACTIVE_STORAGE_SERVICE
+              value: local
+            - name: API_ADRESSE_URL
+              value: https://api-adresse.data.gouv.fr
+            - name: API_EDUCATION_URL
+              value: https://data.education.gouv.fr/api/records/1.0
+            - name: API_ENTREPRISE_DEFAULT_SIRET
+              value: put_your_own_siret
+            - name: API_GEO_URL
+              value: https://geo.api.gouv.fr
+            - name: API_ISPF_PASSWORD
+            - name: API_ISPF_USER
+            - name: APP_HOST
+              value: ip172-18-0-6-d5eol2q91nsg00esp9ug-8443.direct.labs.play-with-docker.com
+            - name: AR_ENCRYPTION_KEY_DERIVATION_SALT
+            - name: AR_ENCRYPTION_PRIMARY_KEY
+            - name: CLAMAV_ENABLED
+              value: enabled
+            - name: CLAMD_TCP_HOST
+              value: clamav
+            - name: CLAMD_TCP_PORT
+              value: "3310"
+            - name: CRISP_CLIENT_KEY
+            - name: CRISP_ENABLED
+              value: disabled
+            - name: DB_DATABASE
+              value: tps_development
+            - name: DB_HOST
+              value: db
+            - name: DB_PASSWORD
+              value: tps_development
+            - name: DB_POOL
+              value: "1"
+            - name: DB_USERNAME
+              value: tps_development
+            - name: DS_PROXY_URL
+            - name: ELIGIBILITE_URL
+              value: https://doc.demarches-simplifiees.fr/pour-aller-plus-loin/eligibilite-des-dossiers
+            - name: ENCRYPTION_SERVICE_SALT
+            - name: GOOGLE_CLIENT_ID
+              value: MyId
+            - name: GOOGLE_CLIENT_SECRET
+              value: MySecretKey
+            - name: HELPSCOUT_CLIENT_ID
+            - name: HELPSCOUT_CLIENT_SECRET
+            - name: HELPSCOUT_MAILBOX_ID
+            - name: HELPSCOUT_WEBHOOK_SECRET
+            - name: INVISIBLE_CAPTCHA_SECRET
+              value: kikooloool
+            - name: LEXPOL_CERT_PATH
+              value: /run/secrets/lexpol-crt
+            - name: LEXPOL_KEY_PATH
+              value: /run/secrets/lexpol-key
+            - name: MAILCATCHER_ENABLED
+              value: enabled
+            - name: MAILCATCHER_HOST
+              value: 172.19.0.1
+            - name: MAILCATCHER_PORT
+              value: "1025"
+            - name: MATOMO_COOKIE_DOMAIN
+              value: '*.www.demarches-simplifiees.fr'
+            - name: MATOMO_DOMAIN
+              value: '*.www.demarches-simplifiees.fr'
+            - name: MATOMO_ENABLED
+              value: disabled
+            - name: MATOMO_HOST
+              value: matomo.example.org
+            - name: MATOMO_ID
+            - name: MICROSOFT_CLIENT_ID
+            - name: MICROSOFT_CLIENT_SECRET
+            - name: OTP_SECRET_KEY
+            - name: REDIS_CACHE_SSL
+            - name: REDIS_CACHE_URL
+              value: redis://cache:6379/0
+            - name: REDIS_URL
+              value: redis://redis:6379/0
+            - name: SAML_IDP_ENABLED
+              value: disabled
+            - name: SENDINBLUE_BALANCING_VALUE
+              value: "100"
+            - name: SENDINBLUE_SMTP_KEY
+            - name: SENDINBLUE_USER_NAME
+            - name: SENTRY_CURRENT_ENV
+              value: development
+            - name: SENTRY_DSN_JS
+            - name: SENTRY_DSN_RAILS
+            - name: SENTRY_ENABLED
+              value: disabled
+            - name: TATOU_CLIENT_ID
+            - name: TATOU_CLIENT_SECRET
+            - name: TZ
+              value: EUROPE/PARIS
+            - name: WEB_CONCURRENCY
+              value: "2"
+            - name: YAHOO_CLIENT_ID
+            - name: YAHOO_CLIENT_SECRET
+          image: ghcr.io/hnoel/demarche.numerique.gouv.fr:main
+          name: app
+          volumeMounts:
+            - mountPath: /run/secrets
+              name: lexpol-key
+              subPath: lexpol-key
+            - mountPath: /run/secrets
+              name: lexpol-crt
+              subPath: lexpol-crt
+      hostname: myapp
+      restartPolicy: Always
+      volumes:
+        - name: lexpol-key
+          secret:
+            items:
+              - key: lexpol-key
+                path: lexpol-key
+            secretName: lexpol-key
+        - name: lexpol-crt
+          secret:
+            items:
+              - key: lexpol-crt
+                path: lexpol-crt
+            secretName: lexpol-crt

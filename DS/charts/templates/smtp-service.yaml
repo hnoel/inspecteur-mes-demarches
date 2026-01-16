@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: ../../kompose --file docker-compose.yml convert --chart
+    kompose.version: 1.38.0 (a8f5d1cbd)
+  labels:
+    io.kompose.service: smtp
+  name: smtp
+spec:
+  ports:
+    - name: "1025"
+      port: 1025
+      targetPort: 1025
+    - name: "8025"
+      port: 8025
+      targetPort: 1080
+  selector:
+    io.kompose.service: smtp

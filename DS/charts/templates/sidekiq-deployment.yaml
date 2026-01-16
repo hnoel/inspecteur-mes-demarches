@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ../../kompose --file docker-compose.yml convert --chart
+    kompose.version: 1.38.0 (a8f5d1cbd)
+  labels:
+    io.kompose.service: sidekiq
+  name: sidekiq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: sidekiq
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ../../kompose --file docker-compose.yml convert --chart
+        kompose.version: 1.38.0 (a8f5d1cbd)
+      labels:
+        io.kompose.service: sidekiq
+    spec:
+      containers:
+        - args:
+            - bundle
+            - exec
+            - sidekiq
+            - -C
+            - config/sidekiq.yml
+          env:
+            - name: ACTIVE_STORAGE_SERVICE
+              value: local
+            - name: API_ADRESSE_URL
+              value: https://api-adresse.data.gouv.fr
+            - name: API_EDUCATION_URL
+              value: https://data.education.gouv.fr/api/records/1.0
+            - name: API_ENTREPRISE_DEFAULT_SIRET
+              value: put_your_own_siret
+            - name: APP_HOST
+              value: ip172-18-0-6-d5eol2q91nsg00esp9ug-8443.direct.labs.play-with-docker.com
+            - name: AR_ENCRYPTION_KEY_DERIVATION_SALT
+            - name: AR_ENCRYPTION_PRIMARY_KEY
+            - name: CLAMAV_ENABLED
+              value: enabled
+            - name: CLAMD_TCP_HOST
+              value: clamav
+            - name: CLAMD_TCP_PORT
+              value: "3310"
+            - name: DB_DATABASE
+              value: tps_development
+            - name: DB_HOST
+              value: db
+            - name: DB_PASSWORD
+              value: tps_development
+            - name: DB_POOL
+              value: "1"
+            - name: DB_USERNAME
+              value: tps_development
+            - name: DELAYED_JOB_ARGS
+              value: --pool=*:5
+            - name: ENCRYPTION_SERVICE_SALT
+            - name: MAILCATCHER_ENABLED
+              value: enabled
+            - name: MAILCATCHER_HOST
+              value: 172.19.0.1
+            - name: MAILCATCHER_PORT
+              value: "1025"
+            - name: REDIS_CACHE_SSL
+            - name: REDIS_CACHE_URL
+              value: redis://cache:6379/0
+            - name: REDIS_URL
+              value: redis://redis:6379/0
+            - name: SENDINBLUE_BALANCING_VALUE
+              value: "100"
+            - name: SENDINBLUE_SMTP_KEY
+            - name: SENDINBLUE_USER_NAME
+            - name: SENTRY_CURRENT_ENV
+              value: development
+            - name: SENTRY_DSN_JS
+            - name: SENTRY_DSN_RAILS
+            - name: SENTRY_ENABLED
+              value: disabled
+            - name: TZ
+              value: EUROPE/PARIS
+          image: ghcr.io/hnoel/demarche.numerique.gouv.fr:main
+          name: sidekiq
+          volumeMounts:
+            - mountPath: /run/secrets
+              name: lexpol-key
+              subPath: lexpol-key
+            - mountPath: /run/secrets
+              name: lexpol-crt
+              subPath: lexpol-crt
+      restartPolicy: Always
+      volumes:
+        - name: lexpol-key
+          secret:
+            items:
+              - key: lexpol-key
+                path: lexpol-key
+            secretName: lexpol-key
+        - name: lexpol-crt
+          secret:
+            items:
+              - key: lexpol-crt
+                path: lexpol-crt
+            secretName: lexpol-crt

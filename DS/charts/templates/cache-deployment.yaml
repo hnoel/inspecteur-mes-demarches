@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ../../kompose --file docker-compose.yml convert --chart
+    kompose.version: 1.38.0 (a8f5d1cbd)
+  labels:
+    io.kompose.service: cache
+  name: cache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: cache
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ../../kompose --file docker-compose.yml convert --chart
+        kompose.version: 1.38.0 (a8f5d1cbd)
+      labels:
+        io.kompose.service: cache
+    spec:
+      containers:
+        - args:
+            - redis-server
+            - --maxmemory
+            - 200mb
+            - --maxmemory-policy
+            - allkeys-lru
+            - --save
+            - ""
+            - --appendonly
+            - "no"
+          env:
+            - name: TZ
+              value: EUROPE/PARIS
+          image: docker.io/redis:latest
+          name: cache
+      restartPolicy: Always
