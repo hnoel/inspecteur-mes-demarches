@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  docker-compose:
+  - apiVersion: v2
+    created: "2026-01-16T22:25:39.989312373Z"
+    description: A generated Helm Chart for docker-compose from Skippbox Kompose
+    digest: 265ebcd98a08f9c22842476b45bf9ae7a2f6d53379c479e03fcbb9f48520fd46
+    keywords:
+    - docker-compose
+    name: docker-compose
+    urls:
+    - https://github.com/hnoel/inspecteur-mes-demarches/releases/download/docker-compose-0.0.1/docker-compose-0.0.1.tgz
+    version: 0.0.1
+generated: "2026-01-16T22:25:39.989325167Z"
