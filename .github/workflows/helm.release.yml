@@ -25,7 +25,7 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Go to 'demarche.numerique' subfolder
-        run: cd ./DS
+        run: cd ./DS && ls -latr
         shell: bash
         
       - name: Run chart-releaser
