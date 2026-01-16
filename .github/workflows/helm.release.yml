@@ -1,0 +1,32 @@
+---
+name: Release an Helm charts
+
+# Configures this workflow to run manually or every time a change is pushed to the branch called `master`.
+on:
+  workflow_dispatch: {}
+  push:
+    branches: ['main']
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.7.0
+        with:
+          chart: ./DS/charts
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
