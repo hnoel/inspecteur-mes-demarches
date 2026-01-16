@@ -11,6 +11,7 @@ jobs:
   release:
     permissions:
       contents: write
+      packages: write
     runs-on: ubuntu-latest
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     steps:
@@ -23,12 +24,12 @@ jobs:
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-
-      - name: Go to 'demarche.numerique' subfolder
-        run: cd ./DS && ls -latr
-        shell: bash
         
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.7.0
+        # with:
+        #   charts_dir: charts
+        #   skip_packaging: false
+        #   skip_existing: false
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
