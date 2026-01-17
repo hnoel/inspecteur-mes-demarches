@@ -1,5 +1,25 @@
 apiVersion: v1
 entries:
+  demarche-numerique:
+  - apiVersion: v2
+    created: "2026-01-17T11:15:05.79489649Z"
+    description: Helm Chart for demarche.numerique.gouv.fr
+    digest: dd63decf46aa96bbef02519fe0ac535e32e19be3a9f6625755106e2cf23ea67c
+    home: https://demarche.numerique.gouv.fr
+    icon: https://demarche.numerique.gouv.fr/assets/favicons/apple-touch-icon-16646b9f74ee2bcba3278cd73fe0815aecb8103c46c285d65e012793764a842d.png
+    keywords:
+    - dev
+    maintainers:
+    - email: henri.noel@users.noreply.github.com
+      name: hnoel
+      url: https://github.com/hnoel
+    name: demarche-numerique
+    sources:
+    - https://github.com/hnoel/demarche.numerique.gouv.fr
+    type: application
+    urls:
+    - https://github.com/hnoel/inspecteur-mes-demarches/releases/download/demarche-numerique-0.0.2/demarche-numerique-0.0.2.tgz
+    version: 0.0.2
   docker-compose:
   - apiVersion: v2
     created: "2026-01-16T22:25:39.989312373Z"
@@ -11,4 +31,4 @@ entries:
     urls:
     - https://github.com/hnoel/inspecteur-mes-demarches/releases/download/docker-compose-0.0.1/docker-compose-0.0.1.tgz
     version: 0.0.1
-generated: "2026-01-16T22:25:39.989325167Z"
+generated: "2026-01-17T11:15:05.794902761Z"
