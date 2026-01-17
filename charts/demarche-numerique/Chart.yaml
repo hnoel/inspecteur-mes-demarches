@@ -1,12 +1,12 @@
 ---
 apiVersion: v2
-name: demarche.numerique
+name: demarche-numerique
 version: 0.0.2
 description: Helm Chart for demarche.numerique.gouv.fr
 type: application
 keywords:
   - demarche.numerique
-home: demarche.numerique.gouv.fr
+home: https://demarche.numerique.gouv.fr
 sources: https://github.com/hnoel/demarche.numerique.gouv.fr
 maintainers: # (optional)
   - name: hnoel
