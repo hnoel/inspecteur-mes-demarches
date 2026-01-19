@@ -1,5 +1,7 @@
 ---
 chart-dirs:
   - charts/demarche-numerique
+charts:
+  - charts/demarche-numerique
 validate-maintainers: false
 all:
