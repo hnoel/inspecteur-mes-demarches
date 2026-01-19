@@ -2,3 +2,4 @@
 chart-dirs:
   - charts/demarche-numerique
 validate-maintainers: false
+all:
