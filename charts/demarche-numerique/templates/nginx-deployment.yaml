@@ -44,6 +44,21 @@ spec:
               name: nginx-cm0
               readOnly: true
               subPath: nginx.conf
+          readinessProbe:
+            httpGet:
+              path: /index.html
+              port: 8443
+              initialDelaySeconds: 5
+              periodSeconds: 2
+              timeoutSeconds: 10
+              successThreshold: 1
+              failureThreshold: 2
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: liveness-port
+            failureThreshold: 30
+            periodSeconds: 10
       restartPolicy: Always
       volumes:
         - name: lexpol-key

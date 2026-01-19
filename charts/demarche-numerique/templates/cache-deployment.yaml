@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: demarche-numerique
   annotations:
     kompose.cmd: ../../kompose --file docker-compose.yml convert --chart
     kompose.version: 1.38.0 (a8f5d1cbd)
