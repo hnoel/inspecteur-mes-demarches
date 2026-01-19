@@ -7,7 +7,7 @@ type: application
 keywords:
   - dev
 home: https://demarche.numerique.gouv.fr
-sources: 
+sources:
   - https://github.com/hnoel/demarche.numerique.gouv.fr
 maintainers:
   - name: hnoel
